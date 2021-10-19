@@ -200,7 +200,7 @@ def decorator(func: TFunc) -> TFunc:
 P = ParamSpec("P")
 R = TypeVar("R")
 
-def decorator(f: Callable[P, R]) -> Callable[P, Callable[R]]:
+def decorator(f: Callable[P, R]) -> Callable[P, R]:
     def inner(*args: P.args, **kwargs: P.kwargs) -> R:
         ...
         res = f(*args, **kwargs)
@@ -219,23 +219,74 @@ def decorator(f: Callable[P, R]) -> Callable[P, Callable[R]]:
 - логирование вызовов функции
 - любая другая мидлварь
 
+*Стандартные (built-in) декораторы python:*
+
+- `staticmethod`
+- `classmethod`
+- `property`
+
+*Декораторы из стандартной библиотеки:*
+
+- from `functools`:
+  - `wraps`
+  - `lru_cache`
+  - `singledispatchmethod`
+  - `cached_property`
+- from `typing`:
+  - `overload`
+  - `final`
+- from `abc`:
+  - `abstractmethod`
+  - `abstractclassmethod`
+  - `abstractstaticmethod`
+  - `abstractproperty`
+- from `dataclasses`:
+  - `dataclass`
+- etc.
+
 ```python
 # Пример декоратора для логирования вызовов функции
+from typing import (
+    Callable,
+    Optional,
+    TypeVar
+)
 from functools import wraps
 
-def call_log_decorator(logger=None):
+R = TypeVar("R")
+
+def call_log_decorator(
+        logger: Optional[Callable[[str], ...]] = None, 
+        prefix: Optional[str] = None, 
+        postfix: Optional[str] = None
+) -> Callable[[Callable[..., R]], ...]:
+    """
+    Декоратор для логирования вызовов функции
+    :param logger: Функция для записи логов
+    :param prefix: строка префикса для лог-записи
+    :param postfix: строка постфикса для лог-записи
+    """
     if logger is None:
         logger = print
-    
-    def decorator(func):
+    if prefix is None:
+        prefix = ''
+    if postfix is None:
+        postfix = ''
+
+    def decorator(func: Callable[..., R]) -> Callable[..., R]:
+
         @wraps(func)
-        def inner(*args, **kwargs):
-            logger(f"new call {func!r} with {args = } {kwargs = }")
+        def inner(*args, **kwargs) -> R:
+            logger(f"{prefix}new call {func!r} with {args = } {kwargs = }{postfix}")
             res = func(*args, **kwargs)
             return res
         return inner
     return decorator
+
+
+with open('test_log.log', 'a', encoding='utf8') as logfile:
+    @call_log_decorator(logfile.write, postfix='\n')
+
+    def foo(a: int, b: bool) -> str:
+        return f"{a = }; {b = }"
 ```
-
-
-
