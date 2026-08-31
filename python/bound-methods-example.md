@@ -1,4 +1,12 @@
-# selfmade bound methods
+# Пример: bound methods, classmethod и staticmethod своими руками
+
+[← Декораторы](decorators.md) · [🏠 Домой](../README.md) · [Итератор →](iterators.md)
+
+---
+
+Разобранный пример того, как `classmethod`/`staticmethod` и bound-методы
+устроены внутри CPython — через протокол дескрипторов (`__get__`). Дополняет
+раздел [Декораторы](decorators.md).
 
 ```python
 class MethodType:
@@ -53,3 +61,7 @@ a = A()
 
 a.foo(10)
 ```
+
+---
+
+[← Декораторы](decorators.md) · [🏠 Домой](../README.md) · [Итератор →](iterators.md)

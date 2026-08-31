@@ -1,7 +1,7 @@
 # Interview-cheat-sheet
 
-## [python](python.md)
+## [Python](python/index.md)
 
-## [SQL](sql.md)
+## [SQL](sql/index.md)
 
 ## [Темы к доработке](topics/README.md)

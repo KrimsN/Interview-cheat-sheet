@@ -8,7 +8,7 @@
   на подсчёте ссылок (reference counting) — без GIL несколько потоков могли
   бы одновременно менять счётчик ссылок и повредить память. Про
   free-threading сборку (PEP 703, 3.13+/3.14+) уже есть раздел в
-  [python.md](../python.md#cpython-без-gil-free-threading-jit-и-суб-интерпретаторы)
+  [python/free-threading-jit.md](../python/free-threading-jit.md)
   — эту тему стоит увязать именно с объяснением GIL.
 - **I/O-bound vs CPU-bound** — ключевой критерий выбора инструмента:
   - **I/O-bound без async-библиотек** (блокирующие сетевые/файловые
@@ -28,8 +28,8 @@
 - **`concurrent.futures`** — `ThreadPoolExecutor`/`ProcessPoolExecutor` как
   унифицированный высокоуровневый интерфейс поверх threading/multiprocessing.
 - **Основы asyncio** — `async def`/`await`, корутины, event loop,
-  `asyncio.run()`. В python.md уже есть продвинутая тема
-  [`asyncio.TaskGroup`](../python.md#asynciotaskgroup) — но нет базы про то,
+  `asyncio.run()`. В python/ уже есть продвинутая тема
+  [`asyncio.TaskGroup`](../python/asyncio-taskgroup.md) — но нет базы про то,
   что такое корутина и как работает цикл событий, стоит добавить перед ней.
 
 ## Ссылки

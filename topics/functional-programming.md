@@ -30,6 +30,6 @@
 
 ## Ссылки
 
-- [`functools` — официальная документация](https://docs.python.org/3/library/functools.html) — первоисточник по `partial`, `reduce`, `lru_cache` и т.д. (часть уже используется в [декораторах python.md](../python.md#декораторы)).
+- [`functools` — официальная документация](https://docs.python.org/3/library/functools.html) — первоисточник по `partial`, `reduce`, `lru_cache` и т.д. (часть уже используется в [декораторах](../python/decorators.md)).
 - [Built-in Functions: `map`, `filter` — официальная документация](https://docs.python.org/3/library/functions.html) — точные сигнатуры и поведение при нескольких итерируемых объектах у `map`.
 - [Understanding Python Partial Functions and Their Applications — Python Tutorial](https://www.pythontutorial.net/python-basics/python-partial-functions/) — практические примеры `functools.partial`.
