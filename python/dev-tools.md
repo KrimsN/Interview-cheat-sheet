@@ -16,6 +16,29 @@
 
 ---
 
+## Как поставить точку останова?
+
+**Коротко.** Встроенная функция `breakpoint()` — с Python 3.7 вместо
+`import pdb; pdb.set_trace()`.
+
+```python
+def calc(data):
+    total = sum(data)
+    breakpoint()          # здесь выполнение остановится, откроется pdb
+    return total / len(data)
+```
+
+Полезные команды pdb: `n` — следующая строка, `s` — зайти внутрь вызова,
+`c` — продолжить, `l` — показать код вокруг, `p выражение` — напечатать,
+`w` — стек вызовов, `q` — выход.
+
+**Подвох.** `breakpoint()` уважает переменную окружения `PYTHONBREAKPOINT`.
+`PYTHONBREAKPOINT=0` отключает все точки останова, не трогая код, — удобно,
+чтобы забытый `breakpoint()` не подвесил прод. Туда же можно подставить другой
+отладчик: `PYTHONBREAKPOINT=ipdb.set_trace`.
+
+---
+
 Дальше — черновые темы для доработки: [topics/](../topics/README.md).
 
 [← CPython без GIL](free-threading-jit.md) · [🏠 Домой](../README.md)

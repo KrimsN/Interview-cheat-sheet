@@ -13,6 +13,14 @@
 собирается с GIL, free-threaded ставится отдельно, например
 `python3.14t` / `uv python install 3.14t`).
 
+Проверить, в какой сборке вы находитесь, можно прямо из кода:
+
+```python
+import sys, sysconfig
+sys._is_gil_enabled()                      # True в обычной сборке
+sysconfig.get_config_var("Py_GIL_DISABLED")  # 0 в обычной, 1 во free-threaded
+```
+
 **Экспериментальный JIT** (`python 3.13+`, PEP 744) — добавлен
 copy-and-patch JIT-компилятор, отключённый по умолчанию (нужна сборка с
 `--enable-experimental-jit`). Пока не даёт заметного прироста

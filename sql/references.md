@@ -1,6 +1,6 @@
 # Внешние ссылки
 
-[← ACID и NULL](acid-and-null.md) · [🏠 Домой](../README.md)
+[← ACID, изоляция и NULL](acid-and-null.md) · [🏠 Домой](../README.md)
 
 ---
 
@@ -10,4 +10,4 @@
 
 ---
 
-[← ACID и NULL](acid-and-null.md) · [🏠 Домой](../README.md)
+[← ACID, изоляция и NULL](acid-and-null.md) · [🏠 Домой](../README.md)

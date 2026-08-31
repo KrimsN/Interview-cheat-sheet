@@ -4,131 +4,248 @@
 
 ---
 
-Декоратор - достаточно широкое понятие:  
-В архитектурном понимании **Декоратор** - это паттерн проектирования, при использовании которого класс или функция изменяет или дополняет функциональность другого класса или функции без использования наследования или прямого изменения исходного кода.  
-В понимании сущностей в python **Декоратор** - это функция или вызываемый объект (далее просто функция-декоратор) которая принимает в качестве параметра другую функцию(исходную), и возвращает новую функцию.
+## Что такое декоратор?
+
+**Коротко.** Функция (или любой вызываемый объект), которая принимает функцию и
+возвращает новую функцию, добавляя поведение вокруг исходной. Синтаксис `@dec`
+над `def f` — это просто сахар для `f = dec(f)`.
+
+Начнём с самого простого рабочего декоратора — он печатает вызов и результат:
 
 ```python
-TFunc = Callable[..., Any]
+from functools import wraps
 
-def decorator(func: TFunc) -> TFunc:
-   pass
+def log(func):
+    @wraps(func)
+    def inner(*args, **kwargs):
+        print(f"-> {func.__name__}{args}")
+        res = func(*args, **kwargs)
+        print(f"<- {res}")
+        return res
+    return inner
+
+@log
+def add(a, b):
+    return a + b
+
+add(2, 3)
+# -> add(2, 3)
+# <- 5
 ```
 
+В архитектурном смысле это паттерн «Декоратор»: поведение добавляется без
+наследования и без правки исходного кода.
+
+**Подвох.** «Когда выполняется тело декоратора?» В момент определения функции,
+один раз — а не при каждом вызове. При каждом вызове выполняется только `inner`.
+
+---
+
+## Зачем нужен `functools.wraps`?
+
+**Коротко.** Без него декорированная функция теряет своё имя, docstring и
+сигнатуру — снаружи виден `inner`, а не исходная функция.
+
 ```python
-# ParamSpec из typing доступен начиная с python 3.10 (для более старых версий - typing_extensions)
+def bare(func):
+    def inner(*a, **k): return func(*a, **k)
+    return inner
+
+@bare
+def foo():
+    "док foo"
+
+foo.__name__   # 'inner'   — имя потеряно
+foo.__doc__    # None      — docstring потерян
+```
+
+С `@wraps(func)` метаданные копируются, а в `__wrapped__` кладётся ссылка на
+оригинал — по ней работает интроспекция (`inspect.signature`, отладчики,
+документация).
+
+**Подвох.** Это частый вопрос «что сломается, если не написать `wraps`». Ломается
+не выполнение, а всё, что смотрит на функцию снаружи: трейсбеки становятся
+нечитаемыми, `help()` пустеет, инструменты вроде Sphinx и pytest начинают
+путаться.
+
+---
+
+## В каком порядке применяются несколько декораторов?
+
+**Коротко.** Снизу вверх при применении, сверху вниз при вызове. Ближайший к
+`def` оборачивает первым.
+
+```python
+@A
+@B
+def target(): ...
+
+# эквивалентно target = A(B(target))
+```
+
+При вызове первым отработает внешний `A`, затем `B`, затем сама функция.
+
+---
+
+## Как написать декоратор с аргументами?
+
+**Коротко.** Нужен ещё один уровень вложенности: внешняя функция принимает
+аргументы и возвращает собственно декоратор.
+
+```python
+from functools import wraps
+
+def call_log_decorator(logger=None, prefix="", postfix=""):
+    """Декоратор для логирования вызовов функции.
+
+    :param logger: функция, принимающая строку (print, list.append, log.info)
+    :param prefix: префикс лог-записи
+    :param postfix: постфикс лог-записи
+    """
+    if logger is None:
+        logger = print
+
+    def decorator(func):
+        @wraps(func)
+        def inner(*args, **kwargs):
+            logger(f"{prefix}call {func.__name__} {args=} {kwargs=}{postfix}")
+            return func(*args, **kwargs)
+        return inner
+    return decorator
+
+
+lines = []
+
+@call_log_decorator(lines.append)
+def calc(a, b=1):
+    return a * b
+
+calc(6, b=7)
+# lines -> ["call calc args=(6,) kwargs={'b': 7}"]
+```
+
+**Подвох.** Логгером тут стоит передавать функцию, а не связанный метод живого
+ресурса. Если написать `@call_log_decorator(logfile.write)` внутри блока
+`with open(...) as logfile`, декоратор захватит `logfile.write` в замыкание, а
+к моменту вызова функции файл будет уже закрыт — получите
+`ValueError: I/O operation on closed file`. Открывать файл нужно на всё время
+жизни декорированной функции либо логировать через `logging`.
+
+---
+
+## Как задекорировать так, чтобы не сломать типизацию?
+
+**Коротко.** Через `ParamSpec` + `TypeVar` — они сохраняют сигнатуру исходной
+функции, в отличие от `Callable[..., Any]`.
+
+```python
+# ParamSpec доступен с python 3.10 (раньше — из typing_extensions)
+from typing import Callable, ParamSpec, TypeVar
 
 P = ParamSpec("P")
 R = TypeVar("R")
 
 def decorator(f: Callable[P, R]) -> Callable[P, R]:
     def inner(*args: P.args, **kwargs: P.kwargs) -> R:
-        ...
-        res = f(*args, **kwargs)
-        ...
-        return res
+        return f(*args, **kwargs)
     return inner
-
 ```
 
-```python
-# python 3.12+: PEP 695 — параметры типа объявляются прямо в сигнатуре функции,
-# TypeVar/ParamSpec отдельно импортировать и создавать не нужно
-# (подробнее про PEP 695 см. раздел "Тайпинг" ниже)
+`python 3.12+` (PEP 695) — параметры типа объявляются прямо в сигнатуре,
+`TypeVar`/`ParamSpec` создавать вручную больше не нужно:
 
+```python
+# python 3.12+
 def decorator[**P, R](f: Callable[P, R]) -> Callable[P, R]:
     def inner(*args: P.args, **kwargs: P.kwargs) -> R:
-        res = f(*args, **kwargs)
-        return res
+        return f(*args, **kwargs)
     return inner
 ```
 
-Декораторы используются в самых разных случаях.
+Подробнее про PEP 695 — в разделе [Тайпинг](typing-advanced.md).
 
-*Например*:
+**Подвох.** `...` в `Callable` допустим **только** на месте списка аргументов
+(`Callable[..., R]` — «любые аргументы»), но не на месте возвращаемого типа.
+`Callable[[str], ...]` — ошибка, mypy отвечает `Unexpected "..."`. Правильно —
+`Callable[[str], None]`.
 
-- кеширование
-- валидация
-- логирование вызовов функции
-- любая другая мидлварь
+---
 
-*Стандартные (built-in) декораторы python:*
+## Декоратор обязательно функция?
 
-- `staticmethod`
-- `classmethod`
-- `property`
-
-*Декораторы из стандартной библиотеки:*
-
-- from `functools`:
-  - `wraps`
-  - `lru_cache`
-  - `cache` (`python 3.9+`) — упрощённый `lru_cache(maxsize=None)`, без
-    ограничения размера
-  - `singledispatchmethod`
-  - `cached_property`
-- from `typing`:
-  - `overload`
-  - `final`
-  - `override` (`python 3.12+`) — см. раздел [Тайпинг](typing-advanced.md)
-- from `abc`:
-  - `abstractmethod`
-  - `abstractclassmethod`
-  - `abstractstaticmethod`
-  - `abstractproperty`
-- from `dataclasses`:
-  - `dataclass`
-- etc.
+Нет — подойдёт любой вызываемый объект. Класс удобен, когда декоратору нужно
+хранить состояние:
 
 ```python
-# Пример декоратора для логирования вызовов функции
-from typing import (
-    Callable,
-    Optional,
-    TypeVar
-)
 from functools import wraps
 
-R = TypeVar("R")
+class CountCalls:
+    def __init__(self, func):
+        wraps(func)(self)
+        self.func = func
+        self.n = 0
 
-def call_log_decorator(
-        logger: Optional[Callable[[str], ...]] = None, 
-        prefix: Optional[str] = None, 
-        postfix: Optional[str] = None
-) -> Callable[[Callable[..., R]], ...]:
-    """
-    Декоратор для логирования вызовов функции
-    :param logger: Функция для записи логов
-    :param prefix: строка префикса для лог-записи
-    :param postfix: строка постфикса для лог-записи
-    """
-    if logger is None:
-        logger = print
-    if prefix is None:
-        prefix = ''
-    if postfix is None:
-        postfix = ''
+    def __call__(self, *args, **kwargs):
+        self.n += 1
+        return self.func(*args, **kwargs)
 
-    def decorator(func: Callable[..., R]) -> Callable[..., R]:
+@CountCalls
+def ping(): ...
 
-        @wraps(func)
-        def inner(*args, **kwargs) -> R:
-            logger(f"{prefix}new call {func!r} with {args = } {kwargs = }{postfix}")
-            res = func(*args, **kwargs)
-            return res
-        return inner
-    return decorator
-
-
-with open('test_log.log', 'a', encoding='utf8') as logfile:
-    @call_log_decorator(logfile.write, postfix='\n')
-
-    def foo(a: int, b: bool) -> str:
-        return f"{a = }; {b = }"
+ping(); ping()
+ping.n   # 2
 ```
 
-См. также: разобранный пример самодельных `classmethod`/`staticmethod` —
-[bound methods своими руками](bound-methods-example.md).
+---
+
+## Какие декораторы есть в стандартной библиотеке?
+
+*Встроенные:*
+
+- `staticmethod`, `classmethod`, `property`
+
+*Из `functools`:*
+
+- `wraps` — сохранить метаданные обёрнутой функции
+- `lru_cache` — кеш с ограничением размера
+- `cache` (`python 3.9+`) — то же, что `lru_cache(maxsize=None)`
+- `cached_property` — свойство, вычисляемое один раз на экземпляр
+- `singledispatch` / `singledispatchmethod` — диспетчеризация по типу аргумента
+
+*Из `typing`:*
+
+- `overload`, `final`
+- `override` (`python 3.12+`) — см. [Тайпинг](typing-advanced.md)
+
+*Из `abc`:*
+
+- `abstractmethod`
+
+*Из `dataclasses`:*
+
+- `dataclass`
+
+**Подвох.** `abstractclassmethod`, `abstractstaticmethod` и `abstractproperty`
+**устарели с python 3.3**. Современная идиома — комбинировать обычный декоратор
+с `abstractmethod`, причём `abstractmethod` должен быть ближе к `def`:
+
+```python
+from abc import ABC, abstractmethod
+
+class Base(ABC):
+    @classmethod
+    @abstractmethod
+    def create(cls): ...
+```
+
+**Глубже.** `lru_cache` на методе держит сильную ссылку на `self` через ключ
+кеша — экземпляры перестают собираться сборщиком мусора, и получается утечка
+памяти. Для методов используют `cached_property` или кеш на уровне экземпляра.
+
+---
+
+См. также разобранный пример того, как `classmethod`/`staticmethod` устроены
+изнутри — [bound methods своими руками](bound-methods-example.md).
 
 ---
 
