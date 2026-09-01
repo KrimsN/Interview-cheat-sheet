@@ -1,6 +1,6 @@
 # Принципы проектирования: DRY, KISS, YAGNI и остальные
 
-[← SOLID](solid.md) · [🏠 Домой](../README.md) · [Порождающие паттерны →](patterns-creational.md)
+[← Внедрение зависимостей](dependency-injection.md) · [🏠 Домой](../README.md) · [Порождающие паттерны →](patterns-creational.md)
 
 ---
 
@@ -110,4 +110,4 @@ fail fast через исключения и `raise ... from ...` —
 
 ---
 
-[← SOLID](solid.md) · [🏠 Домой](../README.md) · [Порождающие паттерны →](patterns-creational.md)
+[← Внедрение зависимостей](dependency-injection.md) · [🏠 Домой](../README.md) · [Порождающие паттерны →](patterns-creational.md)

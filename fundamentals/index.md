@@ -17,15 +17,16 @@
 2. [Четыре столпа ООП](oop-basics.md) — абстракция, инкапсуляция, наследование, полиморфизм, интерфейсы, duck typing
 3. [Связи между классами](oop-relations.md) — композиция vs наследование, агрегация, coupling и cohesion
 4. [SOLID](solid.md) — пять принципов с примерами нарушений
-5. [Принципы проектирования](principles.md) — DRY, KISS, YAGNI, Law of Demeter, fail fast, tell don't ask
-6. [Порождающие паттерны](patterns-creational.md) — factory, builder, singleton, prototype
-7. [Структурные паттерны](patterns-structural.md) — adapter, facade, proxy, decorator, composite, flyweight, bridge
-8. [Поведенческие паттерны](patterns-behavioral.md) — strategy, observer, command, state, iterator, repository
-9. [Антипаттерны и рефакторинг](antipatterns-refactoring.md) — code smells, технический долг, безопасные преобразования
-10. [Архитектурные стили](architecture.md) — слои и гексагон, MVC, монолит vs микросервисы, событийная архитектура
-11. [Сложность алгоритмов](complexity.md) — O-нотация, выбор структуры данных
-12. [Конкурентность и параллелизм](concurrency.md) — процессы, потоки, async, гонки и deadlock
-13. [Тестирование](testing.md) — пирамида, тестовые дублёры, TDD, покрытие
+5. [Внедрение зависимостей (DI)](dependency-injection.md) — DI vs DIP vs IoC, способы внедрения, контейнер и composition root
+6. [Принципы проектирования](principles.md) — DRY, KISS, YAGNI, Law of Demeter, fail fast, tell don't ask
+7. [Порождающие паттерны](patterns-creational.md) — factory, builder, singleton, prototype
+8. [Структурные паттерны](patterns-structural.md) — adapter, facade, proxy, decorator, composite, flyweight, bridge
+9. [Поведенческие паттерны](patterns-behavioral.md) — strategy, observer, command, state, iterator, repository
+10. [Антипаттерны и рефакторинг](antipatterns-refactoring.md) — code smells, технический долг, безопасные преобразования
+11. [Архитектурные стили](architecture.md) — слои и гексагон, MVC, монолит vs микросервисы, событийная архитектура
+12. [Сложность алгоритмов](complexity.md) — O-нотация, выбор структуры данных
+13. [Конкурентность и параллелизм](concurrency.md) — процессы, потоки, async, гонки и deadlock
+14. [Тестирование](testing.md) — пирамида, тестовые дублёры, TDD, покрытие
 
 ---
 
