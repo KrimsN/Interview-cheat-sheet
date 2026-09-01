@@ -24,7 +24,7 @@ import re
 import sys
 import textwrap
 
-DIRS = ("python", "sql", "topics")
+DIRS = ("fundamentals", "python", "sql", "topics")
 BLOCK = re.compile(r"```python\n(.*?)```", re.DOTALL)
 
 
@@ -71,7 +71,7 @@ def check_file(path: pathlib.Path) -> list[str]:
 
 
 def main() -> int:
-    root = pathlib.Path(__file__).resolve().parents[4]
+    root = pathlib.Path(__file__).resolve().parents[1]
     problems: list[str] = []
     total = 0
 

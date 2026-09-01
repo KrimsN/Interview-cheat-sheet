@@ -17,7 +17,7 @@ import re
 import sys
 import unicodedata
 
-DIRS = ("python", "sql", "topics")
+DIRS = ("fundamentals", "python", "sql", "topics")
 
 # Опечатки, найденные при ревизии. Ключ — регулярное выражение, значение — как надо.
 TYPOS = {
@@ -95,7 +95,7 @@ def check_file(path: pathlib.Path) -> list[str]:
 
 
 def main() -> int:
-    root = pathlib.Path(__file__).resolve().parents[4]
+    root = pathlib.Path(__file__).resolve().parents[1]
     problems: list[str] = []
 
     for directory in DIRS:
