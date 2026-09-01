@@ -1,6 +1,6 @@
 # Итератор
 
-[← Пример: bound methods](bound-methods-example.md) · [🏠 Домой](../README.md) · [Генератор →](generators.md)
+[← Управление памятью](memory-management.md) · [🏠 Домой](../README.md) · [Генератор →](generators.md)
 
 ---
 
@@ -143,4 +143,4 @@ list(Countdown(3))   # [3, 2, 1]
 
 ---
 
-[← Пример: bound methods](bound-methods-example.md) · [🏠 Домой](../README.md) · [Генератор →](generators.md)
+[← Управление памятью](memory-management.md) · [🏠 Домой](../README.md) · [Генератор →](generators.md)

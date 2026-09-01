@@ -1,6 +1,6 @@
 # Пример: bound methods, classmethod и staticmethod своими руками
 
-[← Декораторы](decorators.md) · [🏠 Домой](../README.md) · [Итератор →](iterators.md)
+[← Декораторы](decorators.md) · [🏠 Домой](../README.md) · [ООП вглубь →](oop-advanced.md)
 
 ---
 
@@ -119,4 +119,4 @@ StaticMethod.__get__ -> отдаём функцию как есть
 
 ---
 
-[← Декораторы](decorators.md) · [🏠 Домой](../README.md) · [Итератор →](iterators.md)
+[← Декораторы](decorators.md) · [🏠 Домой](../README.md) · [ООП вглубь →](oop-advanced.md)

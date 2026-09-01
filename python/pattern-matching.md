@@ -1,6 +1,6 @@
 # match / case (сопоставление с образцом)
 
-[← Генератор](generators.md) · [🏠 Домой](../README.md) · [Группы исключений →](exception-groups.md)
+[← Контекстные менеджеры](context-managers.md) · [🏠 Домой](../README.md) · [Исключения →](exceptions.md)
 
 ---
 
@@ -121,4 +121,4 @@ match code:
 
 ---
 
-[← Генератор](generators.md) · [🏠 Домой](../README.md) · [Группы исключений →](exception-groups.md)
+[← Контекстные менеджеры](context-managers.md) · [🏠 Домой](../README.md) · [Исключения →](exceptions.md)

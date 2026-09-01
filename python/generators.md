@@ -1,6 +1,6 @@
 # Генератор
 
-[← Итератор](iterators.md) · [🏠 Домой](../README.md) · [match / case →](pattern-matching.md)
+[← Итератор](iterators.md) · [🏠 Домой](../README.md) · [Comprehensions →](comprehensions.md)
 
 ---
 
@@ -181,4 +181,4 @@ list(gen())
 
 ---
 
-[← Итератор](iterators.md) · [🏠 Домой](../README.md) · [match / case →](pattern-matching.md)
+[← Итератор](iterators.md) · [🏠 Домой](../README.md) · [Comprehensions →](comprehensions.md)

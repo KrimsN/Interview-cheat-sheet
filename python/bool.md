@@ -1,6 +1,6 @@
 # bool
 
-[← str](str.md) · [🏠 Домой](../README.md) · [Декораторы →](decorators.md)
+[← str](str.md) · [🏠 Домой](../README.md) · [Область видимости →](scoping-closures.md)
 
 ---
 
@@ -68,4 +68,4 @@ sum([True, True, False])  # 2
 
 ---
 
-[← str](str.md) · [🏠 Домой](../README.md) · [Декораторы →](decorators.md)
+[← str](str.md) · [🏠 Домой](../README.md) · [Область видимости →](scoping-closures.md)

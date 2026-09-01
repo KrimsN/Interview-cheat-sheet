@@ -1,6 +1,6 @@
 # Тайпинг: дженерики, `Self`, `override`, отложенные аннотации
 
-[← asyncio.TaskGroup](asyncio-taskgroup.md) · [🏠 Домой](../README.md) · [tomllib →](tomllib.md)
+[← Базовый typing](typing-basics.md) · [🏠 Домой](../README.md) · [tomllib →](tomllib.md)
 
 ---
 
@@ -97,4 +97,4 @@ FastAPI — разбирает и приводит параметры запро
 
 ---
 
-[← asyncio.TaskGroup](asyncio-taskgroup.md) · [🏠 Домой](../README.md) · [tomllib →](tomllib.md)
+[← Базовый typing](typing-basics.md) · [🏠 Домой](../README.md) · [tomllib →](tomllib.md)

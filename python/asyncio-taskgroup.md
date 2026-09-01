@@ -1,6 +1,6 @@
 # `asyncio.TaskGroup`
 
-[← Группы исключений](exception-groups.md) · [🏠 Домой](../README.md) · [Тайпинг →](typing-advanced.md)
+[← GIL и конкурентность](concurrency-gil.md) · [🏠 Домой](../README.md) · [Базовый typing →](typing-basics.md)
 
 ---
 
@@ -69,6 +69,52 @@ async with asyncio.timeout(5):
 от старого `asyncio.wait_for`, таймаут задаётся на блок кода, а не на одну
 корутину.
 
+Вложенность можно записать одной строкой — несколько менеджеров в одном
+`async with` это ровно то же самое: `__aenter__` вызываются слева направо,
+`__aexit__` — в обратном порядке (см. [Контекстные менеджеры](context-managers.md)).
+
+```python
+# python 3.11+
+async with asyncio.timeout(5), asyncio.TaskGroup() as tg:
+    tg.create_task(worker(1))
+    tg.create_task(worker(2))
+```
+
+Обе формы дают одинаковый результат — на таймауте `0.5` c и задачах по `5` c:
+
+```python
+# one_with -> TimeoutError 0.51 c
+# nested   -> TimeoutError 0.51 c
+```
+
+Если строка длинная, менеджеры берут в скобки и разбивают по строкам
+(PEP 617, `python 3.10+`):
+
+```python
+# python 3.10+
+async with (
+    asyncio.timeout(5),
+    asyncio.TaskGroup() as tg,
+):
+    tg.create_task(worker(1))
+```
+
+**Подвох.** Порядок менеджеров принципиален, и при ошибке ничего не падает —
+таймаут просто перестаёт действовать:
+
+```python
+async with asyncio.TaskGroup() as tg, asyncio.timeout(0.5):
+    tg.create_task(worker(1))          # задача на 5 секунд
+# вышли без исключения через 5.01 c
+```
+
+Внутренний менеджер выходит первым: `asyncio.timeout.__aexit__` отрабатывает
+сразу в конце тела блока, когда задачи только запущены. Ждёт их уже
+`TaskGroup.__aexit__` — снаружи, где таймаута больше нет. Ни отмены, ни
+`TimeoutError`, просто тихое ожидание все пять секунд.
+
+Правило: `timeout` — снаружи (левее), `TaskGroup` — внутри (правее).
+
 ---
 
-[← Группы исключений](exception-groups.md) · [🏠 Домой](../README.md) · [Тайпинг →](typing-advanced.md)
+[← GIL и конкурентность](concurrency-gil.md) · [🏠 Домой](../README.md) · [Базовый typing →](typing-basics.md)

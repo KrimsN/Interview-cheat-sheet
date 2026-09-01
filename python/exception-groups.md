@@ -1,6 +1,6 @@
 # Группы исключений: `except*` и `ExceptionGroup`
 
-[← match / case](pattern-matching.md) · [🏠 Домой](../README.md) · [asyncio.TaskGroup →](asyncio-taskgroup.md)
+[← Исключения](exceptions.md) · [🏠 Домой](../README.md) · [GIL и конкурентность →](concurrency-gil.md)
 
 ---
 
@@ -78,4 +78,4 @@ except ValueError as e:
 
 ---
 
-[← match / case](pattern-matching.md) · [🏠 Домой](../README.md) · [asyncio.TaskGroup →](asyncio-taskgroup.md)
+[← Исключения](exceptions.md) · [🏠 Домой](../README.md) · [GIL и конкурентность →](concurrency-gil.md)

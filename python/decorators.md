@@ -1,6 +1,6 @@
 # Декораторы
 
-[← bool](bool.md) · [🏠 Домой](../README.md) · [Пример: bound methods →](bound-methods-example.md)
+[← Walrus-оператор](modern-syntax.md) · [🏠 Домой](../README.md) · [Пример: bound methods →](bound-methods-example.md)
 
 ---
 
@@ -249,4 +249,4 @@ class Base(ABC):
 
 ---
 
-[← bool](bool.md) · [🏠 Домой](../README.md) · [Пример: bound methods →](bound-methods-example.md)
+[← Walrus-оператор](modern-syntax.md) · [🏠 Домой](../README.md) · [Пример: bound methods →](bound-methods-example.md)

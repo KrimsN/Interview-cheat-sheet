@@ -1,27 +1,25 @@
 # Темы для собеседования по Python — что доучить
 
-Список тем, которые слабо или совсем не покрыты в [python/](../python/index.md)
-(там сейчас в основном базовые типы данных и версионные фичи 3.10-3.14), но
-регулярно всплывают на технических собеседованиях. По каждой теме — краткое
-резюме и подборка рекомендуемых ссылок (официальная документация в
-приоритете, дальше — проверенные разборы).
+Раньше здесь лежали черновики тем, не покрытых в [python/](../python/index.md).
+Сейчас **все они перенесены** в основной раздел — переписаны своими словами
+в формате «вопрос → ответ», с проверенными примерами.
 
-Это черновой материал для последующего наполнения `python/`, а не готовые
-шпаргалки — ссылки нужно будет прочитать и переписать выжимку своими
-словами в основном разделе.
+Черновые файлы оставлены как подборки ссылок: по каждой теме — краткое
+резюме и рекомендуемое чтение (официальная документация в приоритете,
+дальше — проверенные разборы). Ниже — карта «черновик → готовая тема».
 
-## Список тем
+## Что куда переехало
 
-- [ООП вглубь: MRO, дескрипторы, метаклассы, `__slots__`](oop-advanced.md)
-- [GIL и конкурентность: threading / multiprocessing / asyncio](concurrency-gil.md)
-- [Управление памятью: refcounting, GC, weakref, copy/deepcopy](memory-management.md)
-- [Область видимости: LEGB, замыкания, `nonlocal`/`global`, late binding](scoping-closures.md)
-- [Функциональный стиль: `*args`/`**kwargs`, `map`/`filter`/`reduce`, `functools.partial`](functional-programming.md)
-- [Модуль `collections`: `defaultdict`, `Counter`, `deque`, `namedtuple`](collections-module.md)
-- [Исключения: иерархия, `try/except/else/finally`, `raise ... from ...`](exceptions.md)
-- [Контекстные менеджеры: протокол, `contextlib`](context-managers.md)
-- [Comprehensions vs генераторные выражения](comprehensions.md)
-- [Сортировка: `sorted()`, `key`, Timsort](sorting.md)
-- [Модуль `itertools`](itertools.md)
-- [Базовый `typing`: `Protocol`, `TypedDict`, `Literal`, `Optional`](typing-basics.md)
-- [Синтаксис 3.8: walrus-оператор, позиционно-только параметры](modern-syntax.md)
+- ООП вглубь: [черновик со ссылками](oop-advanced.md) → [готовая тема](../python/oop-advanced.md)
+- GIL и конкурентность: [черновик со ссылками](concurrency-gil.md) → [готовая тема](../python/concurrency-gil.md)
+- Управление памятью: [черновик со ссылками](memory-management.md) → [готовая тема](../python/memory-management.md)
+- Область видимости: [черновик со ссылками](scoping-closures.md) → [готовая тема](../python/scoping-closures.md)
+- Функциональный стиль: [черновик со ссылками](functional-programming.md) → [готовая тема](../python/functional-programming.md)
+- Модуль `collections`: [черновик со ссылками](collections-module.md) → [готовая тема](../python/collections-module.md)
+- Исключения: [черновик со ссылками](exceptions.md) → [готовая тема](../python/exceptions.md)
+- Контекстные менеджеры: [черновик со ссылками](context-managers.md) → [готовая тема](../python/context-managers.md)
+- Comprehensions: [черновик со ссылками](comprehensions.md) → [готовая тема](../python/comprehensions.md)
+- Сортировка: [черновик со ссылками](sorting.md) → [готовая тема](../python/sorting.md)
+- Модуль `itertools`: [черновик со ссылками](itertools.md) → [готовая тема](../python/itertools.md)
+- Базовый `typing`: [черновик со ссылками](typing-basics.md) → [готовая тема](../python/typing-basics.md)
+- Синтаксис 3.8: [черновик со ссылками](modern-syntax.md) → [готовая тема](../python/modern-syntax.md)
