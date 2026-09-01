@@ -97,7 +97,7 @@ class Q:
 
 q = Q()
 q.x                             # from descriptor
-q.__dict__["x"] = "from instance"
+q.x = "from instance"
 q.x                             # from instance — non-data проиграл
 ```
 
