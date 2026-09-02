@@ -17,7 +17,7 @@ import re
 import sys
 import unicodedata
 
-DIRS = ("fundamentals", "python", "sql", "topics")
+DIRS = ("fundamentals", "python", "sql", "go", "topics")
 
 # Опечатки, найденные при ревизии. Ключ — регулярное выражение, значение — как надо.
 TYPOS = {
