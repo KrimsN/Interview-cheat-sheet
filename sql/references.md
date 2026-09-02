@@ -1,13 +1,15 @@
 # Внешние ссылки
 
-[← ACID, изоляция и NULL](acid-and-null.md) · [🏠 Домой](../README.md)
+[← Блокировки и дедлоки](locking.md) · [🏠 Домой](../README.md)
 
 ---
 
-- [27 распространённых вопросов по SQL с собеседований и ответы на них](https://tproger.ru/articles/sql-interview-questions/)
-- [Топ-65 вопросов по SQL с собеседований, к которым вы должны подготовиться в 2019 году. Часть I](https://habr.com/ru/company/otus/blog/461067/)
+- [PostgreSQL: Concurrency Control](https://www.postgresql.org/docs/current/mvcc.html) — официальная документация по MVCC, уровням изоляции и блокировкам: первоисточник для раздела про ACID и транзакции.
+- [PostgreSQL: Indexes](https://www.postgresql.org/docs/current/indexes.html) — официальная документация по типам индексов, составным и частичным индексам, `EXPLAIN`.
+- [Use The Index, Luke!](https://use-the-index-luke.com/) — подробный разбор того, как индексы работают на практике и почему запрос их не использует.
+- [explain.tensor.ru](https://explain.tensor.ru/) — визуализация плана `EXPLAIN (ANALYZE)` для PostgreSQL, удобно разбирать реальные планы запросов.
 - [Вопросы по SQL и Базам Данных на интервью ВИДЕО](https://www.youtube.com/watch?v=obIqX-PhgHo)
 
 ---
 
-[← ACID, изоляция и NULL](acid-and-null.md) · [🏠 Домой](../README.md)
+[← Блокировки и дедлоки](locking.md) · [🏠 Домой](../README.md)

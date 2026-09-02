@@ -51,6 +51,23 @@ class Bad:
 #             use default_factory
 ```
 
+Но эта защита касается только `list`, `dict` и `set` — реализация просто
+проверяет `isinstance(default, (list, dict, set))`. Пользовательский
+изменяемый класс в качестве default пройдёт молча и разделится между всеми
+экземплярами — тот же классический баг с mutable default, что и в обычных
+функциях:
+
+```python
+class MyMutableBag:
+    def __init__(self): self.data = []
+
+@dataclass
+class Sneaky:
+    items: MyMutableBag = MyMutableBag()   # ни warning, ни ValueError
+
+Sneaky().items is Sneaky().items    # True — один и тот же объект на всех
+```
+
 Правильно — через `field(default_factory=...)`, он вызывается на каждый
 экземпляр:
 

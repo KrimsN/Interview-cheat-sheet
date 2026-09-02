@@ -21,7 +21,7 @@
 6. [Принципы проектирования](principles.md) — DRY, KISS, YAGNI, Law of Demeter, fail fast, tell don't ask
 7. [Порождающие паттерны](patterns-creational.md) — factory, builder, singleton, prototype
 8. [Структурные паттерны](patterns-structural.md) — adapter, facade, proxy, decorator, composite, flyweight, bridge
-9. [Поведенческие паттерны](patterns-behavioral.md) — strategy, observer, command, state, iterator, repository
+9. [Поведенческие паттерны](patterns-behavioral.md) — strategy, observer, command, state, iterator, mediator, visitor, repository
 10. [Антипаттерны и рефакторинг](antipatterns-refactoring.md) — code smells, технический долг, безопасные преобразования
 11. [Архитектурные стили](architecture.md) — слои и гексагон, MVC, монолит vs микросервисы, событийная архитектура
 12. [Сложность алгоритмов](complexity.md) — O-нотация, выбор структуры данных

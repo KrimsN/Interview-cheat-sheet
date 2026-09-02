@@ -122,9 +122,27 @@ warn("disk")
 переменную (см. [Область видимости](scoping-closures.md)).
 
 **Глубже.** `partial` — объект, а не функция: у него есть атрибуты `func`,
-`args`, `keywords`, он не имеет `__name__` и не становится методом при
-обращении через класс (нет `__get__`). Для «метода с заранее фиксированным
-аргументом» существует `functools.partialmethod`.
+`args`, `keywords`. Начиная с Python 3.14 `partial` — дескриптор метода (есть
+`__get__`), поэтому при обращении через экземпляр класса он превращается
+в bound method, а не остаётся голым `partial`-объектом:
+
+```python
+from functools import partial
+
+def f(a, b): return (a, b)
+
+class C:
+    m = partial(f, "FIXED")
+
+C().m  # bound method, не просто partial-объект (начиная с 3.14)
+```
+
+В Python 3.13 это поведение ещё переходное — обращение к такому атрибуту
+через класс/экземпляр выдаёт `FutureWarning: functools.partial will be
+a method descriptor in future Python versions`. Чтобы сохранить старое
+поведение (не-метод, как раньше), достаточно обернуть в `staticmethod`:
+`m = staticmethod(partial(f, "FIXED"))`. Для «метода с заранее фиксированным
+аргументом» по-прежнему есть специализированный `functools.partialmethod`.
 
 ---
 

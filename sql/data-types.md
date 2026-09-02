@@ -95,8 +95,17 @@ CREATE INDEX idx_payload ON events USING GIN (payload);
 - **`UUID`** — отдельный тип в Postgres (16 байт), а не строка на 36 символов.
 - **`ARRAY`** — расширение Postgres: `integer[]`, с поиском через `ANY` и
   GIN-индексом.
+
+  ```sql
+  SELECT ARRAY[1, 2, 3] || ARRAY[4, 5];  -- {1,2,3,4,5}
+  ```
+
 - **`ENUM`** — перечисление; в Postgres добавление значения требует `ALTER TYPE`,
   поэтому часто предпочитают справочную таблицу с внешним ключом.
+
+  ```sql
+  CREATE TYPE mood AS ENUM ('sad', 'ok', 'happy');
+  ```
 
 ---
 

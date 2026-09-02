@@ -131,6 +131,80 @@ def with_auth(next_handler):
 
 ---
 
+## Mediator
+
+**Коротко.** Mediator убирает прямые связи между множеством компонентов,
+заставляя их общаться только через центральный объект-посредник — компоненты
+знают о медиаторе, но не знают друг о друге.
+
+```python
+class DialogMediator:
+    def __init__(self) -> None:
+        self.submit_button = Button(on_click=self.handle_submit)
+        self.name_field = TextField(on_change=self.handle_change)
+
+    def handle_change(self, value: str) -> None:
+        self.submit_button.enabled = bool(value)   # поля влияют друг на друга
+
+    def handle_submit(self) -> None:
+        print("отправлено:", self.name_field.value)
+```
+
+**Подвох.** Mediator путают с Facade и Observer, потому что все трое «убирают
+связанность через посредника». Разница в направлении общения: Facade даёт
+один упрощённый интерфейс к подсистеме **в одну сторону** (клиент → подсистема,
+подсистема о клиенте не знает); Observer уведомляет подписчиков **без
+обратной связи** (subject не ждёт ответа от них); Mediator организует
+**двустороннее** общение множества равноправных компонентов друг с другом
+через один хаб — компоненты и посылают события медиатору, и реагируют на
+события от него.
+
+**Глубже.** Плата за убранную связанность — медиатор со временем разрастается
+и превращается в god object, знающий обо всех деталях каждого компонента.
+Работает, пока в диалоге/форме, которую он координирует, ограниченное число
+участников; для действительно сложной маршрутизации сообщений уместнее
+event bus (см. [Observer](#observer)) с более слабой связанностью.
+
+---
+
+## Visitor
+
+**Коротко.** Visitor добавляет новую операцию над иерархией классов, не
+изменяя сами классы — через двойную диспетчеризацию: элемент вызывает
+`accept(visitor)`, а тот сам решает, какой метод посетителя вызвать в
+зависимости от типа элемента.
+
+```python
+class Circle:
+    def accept(self, visitor): return visitor.visit_circle(self)
+
+class Square:
+    def accept(self, visitor): return visitor.visit_square(self)
+
+class AreaVisitor:
+    def visit_circle(self, c): return 3.14 * c.radius ** 2
+    def visit_square(self, s): return s.side ** 2
+
+shapes = [Circle(radius=2), Square(side=3)]
+total = sum(shape.accept(AreaVisitor()) for shape in shapes)
+```
+
+Это прямая иллюстрация Open/Closed из [SOLID](solid.md): чтобы добавить
+операцию `Perimeter`, пишут новый visitor и не трогают `Circle`/`Square`.
+
+**Подвох.** Trade-off обратный обычному полиморфизму: добавить **новую
+операцию** — дёшево (один новый visitor), а добавить **новый тип элемента**
+в иерархию — дорого (нужно дописать метод `visit_...` во все существующие
+visitor'ы). Если в системе типы элементов стабильны, а новые операции
+появляются часто — Visitor выигрывает; если наоборот — он усложняет код без
+пользы, и обычный полиморфизм проще.
+
+**В Python:** двойную диспетчеризацию по типу аргумента без ручного if/elif
+даёт `functools.singledispatch` — см.
+[декораторы](../python/decorators.md).
+
+---
+
 ## Repository и Unit of Work
 
 **Коротко.** Не из каталога GoF, но спрашивают часто. Repository — коллекция

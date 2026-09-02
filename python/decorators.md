@@ -211,6 +211,20 @@ ping.n   # 2
 - `cache` (`python 3.9+`) — то же, что `lru_cache(maxsize=None)`
 - `cached_property` — свойство, вычисляемое один раз на экземпляр
 - `singledispatch` / `singledispatchmethod` — диспетчеризация по типу аргумента
+- `total_ordering` — достраивает недостающие `__le__`/`__gt__`/`__ge__` (или
+  `__lt__`) по имеющимся `__eq__` и одному из операторов сравнения:
+
+```python
+from functools import total_ordering
+
+@total_ordering
+class Money:
+    def __init__(self, amount): self.amount = amount
+    def __eq__(self, other): return self.amount == other.amount
+    def __lt__(self, other): return self.amount < other.amount
+
+Money(10) <= Money(20)   # True — достроен из __eq__ и __lt__
+```
 
 *Из `typing`:*
 
