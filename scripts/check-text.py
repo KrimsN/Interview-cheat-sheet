@@ -17,7 +17,7 @@ import re
 import sys
 import unicodedata
 
-DIRS = ("fundamentals", "python", "sql", "go", "topics")
+DIRS = ("fundamentals", "python", "sql", "go", "rust", "topics")
 
 # Опечатки, найденные при ревизии. Ключ — регулярное выражение, значение — как надо.
 TYPOS = {
@@ -99,7 +99,7 @@ def main() -> int:
     problems: list[str] = []
 
     for directory in DIRS:
-        for path in sorted((root / directory).glob("*.md")):
+        for path in sorted((root / directory).rglob("*.md")):
             problems.extend(check_file(path.relative_to(root)))
 
     if problems:

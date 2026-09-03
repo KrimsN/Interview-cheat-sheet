@@ -6,6 +6,10 @@
 
 ## Разделы
 
+- Rust — карта тем в [rust/](rust/README.md) (все 25 уже перенесены в
+  [rust/](../rust/index.md)). Там же
+  [список доработок для остальных разделов](rust/cross-language.md),
+  который виден с позиции Rust.
 - Go — черновики в [go/](go/README.md) (все уже перенесены в
   [go/](../go/index.md), 24 темы).
 - Python — черновики ниже (все уже перенесены в [python/](../python/index.md)).

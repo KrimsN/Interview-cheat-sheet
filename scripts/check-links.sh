@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Проверяет относительные markdown-ссылки в fundamentals/, python/, sql/ и go/:
+# Проверяет относительные markdown-ссылки в fundamentals/, python/, sql/, go/ и rust/:
 # - что каждая ссылка вида ](file.md) или ](file.md#anchor) указывает на
 #   существующий файл;
 # - что на каждый .md-файл раздела (кроме index.md) есть хотя бы одна
@@ -42,9 +42,10 @@ check_dir fundamentals
 check_dir python
 check_dir sql
 check_dir go
+check_dir rust
 
 echo "--- файлы без входящих ссылок (кроме index.md) ---"
-for dir in fundamentals python sql go; do
+for dir in fundamentals python sql go rust; do
     [ -d "$dir" ] || continue
     while IFS= read -r file; do
         abs="$(cd "$(dirname "$file")" && pwd)/$(basename "$file")"
