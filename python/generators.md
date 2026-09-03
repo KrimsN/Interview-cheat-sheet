@@ -105,6 +105,18 @@ list(outer())   # [1, 2, 3]
 **Коротко.** Это канал связи в обратную сторону: `send()` передаёт значение
 внутрь генератора, `throw()` возбуждает в нём исключение, `close()` завершает его.
 
+```mermaid
+stateDiagram-v2
+    [*] --> Created : вызов gen() — тело ещё не выполнялось
+    Created --> Suspended : next() — «прогрев» до первого yield
+    Suspended --> Running : next() или send(value)
+    Running --> Suspended : дошли до следующего yield
+    Running --> Closed : return или исчерпание
+    Suspended --> Closed : close() возбуждает GeneratorExit,<br/>отрабатывает finally
+    Suspended --> Running : throw(exc) — исключение в точке остановки
+    Closed --> [*] : дальнейший next() даёт StopIteration
+```
+
 `send(value)` делает то же, что `next()`, но выражение `yield` возвращает
 переданное значение вместо `None`:
 

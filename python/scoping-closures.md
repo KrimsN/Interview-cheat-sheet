@@ -15,6 +15,15 @@
 - **Global** — имена уровня модуля.
 - **Built-in** — модуль `builtins`: `len`, `print`, `sum`.
 
+```mermaid
+flowchart LR
+    use["Обращение к имени x"] --> l["Local:<br/>имена текущей функции"]
+    l -->|"не найдено"| e["Enclosing:<br/>объемлющая функция<br/>(класс не участвует)"]
+    e -->|"не найдено"| g["Global:<br/>уровень модуля"]
+    g -->|"не найдено"| b["Built-in:<br/>len, print, sum"]
+    b -->|"не найдено"| err["NameError"]
+```
+
 ```python
 x = "global"
 

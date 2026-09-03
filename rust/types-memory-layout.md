@@ -158,6 +158,31 @@ fn main() {
 }
 ```
 
+```mermaid
+flowchart LR
+    subgraph thin["Обычный указатель, 8 байт"]
+        direction LR
+        p1["&u8: адрес"] --> b1["байт в памяти"]
+    end
+```
+
+```mermaid
+flowchart LR
+    subgraph fat1["&[u8] и &str: 16 байт"]
+        direction LR
+        p2["адрес + длина"] --> b2["непрерывный блок элементов"]
+    end
+```
+
+```mermaid
+flowchart LR
+    subgraph fat2["&dyn Trait: 16 байт"]
+        direction LR
+        p3["адрес данных"] --> b3["значение конкретного типа"]
+        p4["адрес vtable"] --> b4["vtable: методы, drop, size, align"]
+    end
+```
+
 Отсюда сразу два следствия, которые любят спрашивать:
 
 - трейт-объект нельзя вернуть по значению — `fn f() -> dyn Trait` не

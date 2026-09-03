@@ -96,6 +96,22 @@ class Penguin(Bird):
 в отдельный интерфейс `Flyable`: иерархия должна строиться по поведению,
 а не по биологии.
 
+```mermaid
+classDiagram
+    direction LR
+    class Bird {
+        +eat()
+    }
+    class Flyable {
+        <<interface>>
+        +fly()
+    }
+    Bird <|-- Sparrow
+    Bird <|-- Penguin
+    Flyable <|.. Sparrow : летает
+    note for Penguin "Penguin не реализует Flyable, подстановка не ломает клиента"
+```
+
 **Глубже.** Формально LSP — про контракты (design by contract): предусловия
 наследника не сильнее, постусловия не слабее, инварианты сохраняются, а
 исключения — не шире объявленных базовым типом. Появление `isinstance`
@@ -107,6 +123,26 @@ class Penguin(Bird):
 
 **Коротко.** Клиента нельзя заставлять зависеть от методов, которые он не
 использует. Толстый интерфейс делят на несколько узких по ролям клиентов.
+
+```mermaid
+flowchart LR
+    subgraph fat["Толстый интерфейс"]
+        direction LR
+        cr1["Клиент-читатель"] --> st["Storage:<br/>read + write + compact"]
+        cw1["Клиент-писатель"] --> st
+        ro1["ReadOnlyCache"] -.->|"write/compact = заглушки"| st
+    end
+```
+
+```mermaid
+flowchart LR
+    subgraph thin["Сегрегированный"]
+        direction LR
+        cr2["Клиент-читатель"] --> r["Reader: read"]
+        cw2["Клиент-писатель"] --> w["Writer: write"]
+        ro2["ReadOnlyCache"] -.->|"реализует только Reader"| r
+    end
+```
 
 ```python
 # толстый: реализация «только для чтения» вынуждена писать заглушки
@@ -134,6 +170,27 @@ class Writer(Protocol):
 **Коротко.** Модули верхнего уровня не должны зависеть от модулей нижнего
 уровня; оба зависят от абстракций. Причём **абстракцию определяет верхний
 уровень** — именно в этом «инверсия».
+
+```mermaid
+flowchart TB
+    subgraph before["До инверсии: домен зависит от инфраструктуры"]
+        direction LR
+        s1["OrderService<br/>(домен)"] --> pg1["PostgresClient<br/>(инфраструктура)"]
+    end
+```
+
+```mermaid
+flowchart TB
+    subgraph after["После инверсии: обе стороны зависят от абстракции домена"]
+        direction LR
+        s2["OrderService<br/>(домен)"] --> port["Orders<br/>(порт, принадлежит домену)"]
+        pg2["PostgresOrders<br/>(адаптер)"] -.->|"реализует"| port
+        mem["InMemoryOrders<br/>(тест)"] -.->|"реализует"| port
+    end
+```
+
+Стрелка зависимости у адаптера направлена против направления вызова — в этом
+и состоит инверсия.
 
 ```python
 # прямая зависимость: домен знает про Postgres

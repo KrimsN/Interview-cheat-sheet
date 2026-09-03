@@ -164,6 +164,17 @@ func writeAll(path string, data []byte) (err error) {
 стек всех горутин. `recover` останавливает разворачивание, но **только**
 если вызван непосредственно внутри отложенной функции.
 
+```mermaid
+flowchart TB
+    p["panic в f()"] --> u1["f: выполняются её defer'ы<br/>в порядке LIFO"]
+    u1 --> u2["safeCall: выполняется её defer"]
+    u2 --> r{"recover() вызван<br/>прямо в defer?"}
+    r -->|"да"| stop["разворачивание останавливается,<br/>функция возвращается штатно"]
+    r -->|"нет, вызван во вложенной функции"| cont["recover() вернул nil,<br/>разворачивание продолжается"]
+    cont --> main["main: свои defer'ы"]
+    main --> crash["процесс падает,<br/>печатается стек всех горутин"]
+```
+
 ```go
 func safeCall(f func()) (err error) {
 	defer func() {

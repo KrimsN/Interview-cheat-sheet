@@ -109,6 +109,23 @@ fn main() {
 `RefCell` выдаёт ссылки и проверяет правило заимствования **в рантайме**,
 паникуя при нарушении.
 
+Как выбирать между всеми умными указателями сразу:
+
+```mermaid
+flowchart TB
+    q1{"Нужно ли владение<br/>в куче?"}
+    q1 -->|"один владелец,<br/>рекурсивный тип или dyn Trait"| box["Box&lt;T&gt;"]
+    q1 -->|"несколько владельцев"| q2{"Данные ходят<br/>между потоками?"}
+    q2 -->|"нет"| rc["Rc&lt;T&gt;"]
+    q2 -->|"да"| arc["Arc&lt;T&gt;"]
+    rc --> q3{"Нужна изменяемость<br/>через общую ссылку?"}
+    arc --> q4{"Нужна изменяемость?"}
+    q3 -->|"значение целиком, Copy"| cell["Cell&lt;T&gt;"]
+    q3 -->|"нужны ссылки внутрь"| refcell["RefCell&lt;T&gt;<br/>проверка в рантайме, паника"]
+    q4 -->|"да"| mutex["Mutex / RwLock<br/>проверка блокировкой"]
+    box -.->|"обратные ссылки в графе"| weak["Weak&lt;T&gt;"]
+```
+
 ```rust
 use std::cell::{Cell, RefCell};
 
@@ -177,6 +194,25 @@ fn main() {
     println!("{:?}", leaf.parent.borrow().upgrade().map(|p| p.value)); // Some(5)
     println!("{} {}", Rc::strong_count(&branch), Rc::weak_count(&branch)); // 1 1
 }
+```
+
+```mermaid
+flowchart LR
+    subgraph cycle["Цикл из Rc: утечка"]
+        direction LR
+        n1["Node A<br/>strong = 1"] -->|"Rc"| n2["Node B<br/>strong = 1"]
+        n2 -->|"Rc"| n1
+        n1 -.->|"счётчики никогда не дойдут до нуля"| leak["Память не освобождается"]
+    end
+```
+
+```mermaid
+flowchart LR
+    subgraph fixed["Rc вниз, Weak вверх"]
+        direction LR
+        b["branch<br/>strong = 1, weak = 1"] -->|"Rc: владение вниз"| l["leaf<br/>strong = 2"]
+        l -.->|"Weak: upgrade() → Option"| b
+    end
 ```
 
 Правило: **владение вниз по иерархии — `Rc`, обратные ссылки — `Weak`**.

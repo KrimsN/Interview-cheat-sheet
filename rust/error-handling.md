@@ -58,6 +58,15 @@ fn main() {
 }
 ```
 
+```mermaid
+flowchart TB
+    call["let x: i64 = a.parse()?"] --> res{"Что вернул вызов?"}
+    res -->|"Ok(v)"| ok["выражение даёт v,<br/>выполнение продолжается"]
+    res -->|"Err(e)"| conv["From::from(e) →<br/>тип ошибки этой функции"]
+    conv --> ret["немедленный return Err(...)"]
+    res -->|"None в функции с Option"| none["немедленный return None"]
+```
+
 Автоматическое `From` — ключевая часть: если функция возвращает `MyError`, а
 внутри вызывается что-то с `io::Error`, достаточно реализовать
 `impl From<io::Error> for MyError`, и `?` сам сконвертирует.

@@ -123,6 +123,14 @@ Sentinel-ошибки становятся частью публичного API
 `errors.Is` (сравнение по значению на любую глубину цепочки) и `errors.As`
 (поиск по типу на любую глубину).
 
+```mermaid
+flowchart LR
+    top["fmt.Errorf с %w:<br/>handle request: ..."] -->|"Unwrap()"| mid["fmt.Errorf с %w:<br/>get user 42: ..."]
+    mid -->|"Unwrap()"| base["ErrNotFound"]
+    is["errors.Is(err, ErrNotFound)"] -.->|"сравнение по значению<br/>на любой глубине цепочки"| base
+    asf["errors.As(err, target)"] -.->|"поиск по типу<br/>на любой глубине цепочки"| mid
+```
+
 ```go
 var ErrNotFound = errors.New("not found")
 

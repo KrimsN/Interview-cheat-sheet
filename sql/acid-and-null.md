@@ -49,6 +49,37 @@
 - **Фантомное чтение (phantom read)** — повторный запрос по тому же условию
   возвращает **новые строки**, которых в первый раз не было.
 
+Неповторяющееся чтение по шагам:
+
+```mermaid
+sequenceDiagram
+    participant T1 as Транзакция 1
+    participant DB as Таблица accounts
+    participant T2 as Транзакция 2
+    T1->>DB: BEGIN, затем SELECT balance WHERE id=1
+    DB-->>T1: 100
+    T2->>DB: UPDATE balance=50 WHERE id=1, затем COMMIT
+    T1->>DB: SELECT balance WHERE id=1 (тот же запрос)
+    DB-->>T1: 50
+    Note over T1: одно и то же чтение внутри одной<br/>транзакции дало разный результат
+```
+
+Write skew, который снимочная изоляция не ловит:
+
+```mermaid
+sequenceDiagram
+    participant A as Врач A
+    participant DB as on_call
+    participant B as Врач B
+    A->>DB: сколько дежурных? (снимок)
+    DB-->>A: 2 — можно уйти
+    B->>DB: сколько дежурных? (тот же снимок)
+    DB-->>B: 2 — можно уйти
+    A->>DB: UPDATE on_call=false WHERE doctor=A
+    B->>DB: UPDATE on_call=false WHERE doctor=B
+    Note over DB: строки разные, конфликта записи нет,<br/>но инвариант «хотя бы один дежурный» нарушен
+```
+
 **Подвох.** Стандарт описывает минимальные гарантии, а СУБД их превышают, и
 названия уровней вводят в заблуждение:
 

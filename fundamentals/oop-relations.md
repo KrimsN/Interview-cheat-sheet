@@ -16,6 +16,24 @@
 только от публичного API родителя, но и от его внутреннего поведения. Меняется
 родитель — молча ломаются наследники. Это называют fragile base class problem.
 
+Все виды связей в нотации UML, которую рисуют на доске:
+
+```mermaid
+classDiagram
+    Animal <|-- Dog : наследование (is-a)
+    Serializable <|.. Dog : реализация интерфейса
+    Order *-- OrderLine : композиция (закрашенный ромб)
+    Course o-- Student : агрегация (пустой ромб)
+    Driver --> Car : ассоциация (знает и использует)
+    Report ..> Logger : зависимость (использует локально)
+    class Animal {
+        <<abstract>>
+    }
+    class Serializable {
+        <<interface>>
+    }
+```
+
 ```python
 # наследование: логгер намертво вшит в тип
 class JsonExporter(FileWriter):
@@ -94,6 +112,28 @@ class Course:
 **Коротко.** Связанность — насколько сильно модули зависят друг от друга;
 её минимизируют. Связность — насколько элементы внутри модуля решают одну
 задачу; её максимизируют. Цель: low coupling, high cohesion.
+
+```mermaid
+flowchart TB
+    subgraph bad["Плохо: high coupling, low cohesion"]
+        direction LR
+        u["Utils / Manager<br/>БД + HTML + письма"] <--> a1["Модуль A"]
+        u <--> a2["Модуль B"]
+        u <--> a3["Модуль C"]
+        a1 <--> a2
+        a2 <--> a3
+    end
+```
+
+```mermaid
+flowchart TB
+    subgraph good["Хорошо: low coupling, high cohesion"]
+        direction LR
+        g1["Хранилище заказов"] --> i["Интерфейс домена"]
+        g2["Отправка писем"] --> i
+        g3["Рендер отчёта"] --> i
+    end
+```
 
 Признаки высокой связанности: изменение в одном модуле требует правок в
 нескольких других; модуль лезет во внутренности чужого объекта; циклические

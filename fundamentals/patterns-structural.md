@@ -19,6 +19,41 @@ Adapter **меняет интерфейс** под ожидания клиент
 | Proxy | тот же | контроль доступа к объекту |
 | Decorator | тот же | добавить обязанность, слоями |
 
+```mermaid
+flowchart TB
+    subgraph s1["Adapter — интерфейс меняется"]
+        direction LR
+        c1["Клиент"] -->|"ждёт IB"| a1["Adapter"] -->|"зовёт IA"| t1["Чужой сервис"]
+    end
+```
+
+```mermaid
+flowchart TB
+    subgraph s2["Facade — новый упрощённый интерфейс"]
+        direction LR
+        c2["Клиент"] --> f["Facade"]
+        f --> m1["Модуль 1"]
+        f --> m2["Модуль 2"]
+        f --> m3["Модуль 3"]
+    end
+```
+
+```mermaid
+flowchart TB
+    subgraph s3["Proxy — тот же интерфейс, контроль доступа"]
+        direction LR
+        c3["Клиент"] -->|"IA"| p["Proxy: кеш, права, ленивое создание"] -->|"IA"| t3["Реальный объект"]
+    end
+```
+
+```mermaid
+flowchart TB
+    subgraph s4["Decorator — тот же интерфейс, слои поведения"]
+        direction LR
+        c4["Клиент"] -->|"IA"| d1["Timed"] -->|"IA"| d2["Retrying"] -->|"IA"| t4["RealHandler"]
+    end
+```
+
 ```python
 class Timed:                      # decorator: интерфейс тот же, поведение шире
     def __init__(self, inner):
@@ -57,6 +92,26 @@ handler = Timed(Retrying(RealHandler()))     # слои складываются
 объекту одинаково: лист и составной узел реализуют один интерфейс, и клиент
 не различает их. Применяется для иерархий вида «файлы и папки», «группа фигур»,
 «вложенные меню», «дерево прав».
+
+```mermaid
+classDiagram
+    class Node {
+        <<interface>>
+        +size() int
+    }
+    class File {
+        -size int
+        +size() int
+    }
+    class Folder {
+        -children List~Node~
+        +size() int
+        +add(Node)
+    }
+    Node <|.. File : лист
+    Node <|.. Folder : составной узел
+    Folder o-- Node : дети того же типа
+```
 
 ```python
 class Node(Protocol):
@@ -100,6 +155,28 @@ Flyweight классически применяют к символам в те�
 в игре, повторяющимся строкам. Bridge — когда есть, например, три вида отчётов
 и три способа их отрисовки: наследование дало бы девять классов, мост даёт
 три плюс три.
+
+```mermaid
+classDiagram
+    direction LR
+    class Report {
+        #renderer Renderer
+        +render()
+    }
+    class SalesReport
+    class TaxReport
+    class Renderer {
+        <<interface>>
+        +draw_table()
+    }
+    class HtmlRenderer
+    class PdfRenderer
+    Report <|-- SalesReport : ось «что за отчёт»
+    Report <|-- TaxReport
+    Renderer <|.. HtmlRenderer : ось «как рисуем»
+    Renderer <|.. PdfRenderer
+    Report o-- Renderer : мост между осями
+```
 
 **Подвох.** Flyweight работает только с **неизменяемым** разделяемым
 состоянием: если общий объект можно поменять, изменение мгновенно увидят все

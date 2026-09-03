@@ -78,6 +78,24 @@ class Account:
 абстрактный класс; нужно, чтобы **не связанные между собой** классы умели
 что-то одинаковое — интерфейс.
 
+```mermaid
+classDiagram
+    class Repository {
+        <<abstract>>
+        #connection
+        +get(key)* абстрактный
+        +get_or_default(key, default) общий код
+    }
+    class Serializable {
+        <<interface>>
+        +to_json()
+    }
+    Repository <|-- PgRepository : наследование, один базовый класс
+    Repository <|-- RedisRepository
+    Serializable <|.. PgRepository : реализаций может быть много
+    Serializable <|.. Report : классы между собой не связаны
+```
+
 ```python
 from abc import ABC, abstractmethod
 

@@ -36,6 +36,21 @@ asyncio.run(main())
 Разница с `gather()` видна на долгой соседней задаче: `TaskGroup` отменяет её
 сразу, `gather()` — оставляет работать в фоне.
 
+```mermaid
+sequenceDiagram
+    participant M as main
+    participant TG as TaskGroup
+    participant W2 as worker 2
+    participant S as slow (5 c)
+    M->>TG: async with, create_task для обеих
+    TG->>W2: запуск
+    TG->>S: запуск
+    W2-->>TG: ValueError
+    TG->>S: cancel() — соседи отменяются сразу
+    TG-->>M: выход из блока: ExceptionGroup
+    Note over M,S: с gather() задача slow осталась бы<br/>работать в фоне после ошибки
+```
+
 ```python
 async def slow():
     await asyncio.sleep(5)        # с TaskGroup будет отменена через 0.02 c

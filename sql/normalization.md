@@ -28,6 +28,35 @@ orders_flat
 - **аномалия вставки** — нельзя завести клиента, пока у него нет заказа;
 - **аномалия удаления** — удалив последний заказ, теряем и самого клиента.
 
+После разнесения фактов по таблицам почта клиента хранится ровно в одном месте:
+
+```mermaid
+erDiagram
+    CLIENTS ||--o{ ORDERS : "размещает"
+    ORDERS ||--|{ ORDER_ITEMS : "содержит"
+    PRODUCTS ||--o{ ORDER_ITEMS : "входит в"
+    CLIENTS {
+        int id PK
+        text name
+        text email "единственное место хранения"
+    }
+    ORDERS {
+        int id PK
+        int client_id FK
+        date created_at
+    }
+    ORDER_ITEMS {
+        int order_id FK
+        int product_id FK
+        int qty
+    }
+    PRODUCTS {
+        int id PK
+        text name
+        int price
+    }
+```
+
 ---
 
 ## Что требуют нормальные формы?

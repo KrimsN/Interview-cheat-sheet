@@ -73,6 +73,35 @@ async fn main() {
 }
 ```
 
+Кто кого дёргает в pull-модели:
+
+```mermaid
+sequenceDiagram
+    participant E as Исполнитель (Tokio)
+    participant F as Future
+    participant R as Источник готовности<br/>(сокет, таймер)
+    E->>F: poll(cx)
+    F->>R: подписаться, сохранив cx.waker()
+    F-->>E: Poll::Pending
+    Note over E: задача снята с выполнения,<br/>поток занят другими задачами
+    R-->>E: waker.wake() — данные готовы
+    E->>F: poll(cx) снова
+    F-->>E: Poll::Ready(значение)
+```
+
+Во что компилятор превращает `async fn` с двумя точками `.await`:
+
+```mermaid
+stateDiagram-v2
+    [*] --> Start : футура создана, тело не выполнялось
+    Start --> AwaitRead : первый poll, дошли до .await
+    AwaitRead --> AwaitRead : Pending — ждём waker
+    AwaitRead --> AwaitWrite : данные пришли, дошли до второго .await
+    AwaitWrite --> AwaitWrite : Pending
+    AwaitWrite --> Done : Ready(значение)
+    Done --> [*]
+```
+
 Компилятор превращает `async`-блок именно в такой автомат: каждая точка
 `.await` — состояние, а всё, что живёт через `.await`, становится полем
 структуры-футуры. Отсюда практическое следствие: футуры бывают большими, и

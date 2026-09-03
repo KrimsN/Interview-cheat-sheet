@@ -12,6 +12,21 @@
 CPU-bound задачи — около `GOMAXPROCS`, I/O-bound — заметно больше, потому
 что воркер большую часть времени не занимает ядро, а ждёт сеть или диск.
 
+```mermaid
+flowchart LR
+    prod["Producer"] --> jobs(["jobs (канал)"])
+    jobs --> w1["worker 1"]
+    jobs --> w2["worker 2"]
+    jobs --> w3["worker N"]
+    w1 --> res(["results (канал)"])
+    w2 --> res
+    w3 --> res
+    res --> cons["Consumer"]
+    ctx["ctx.Done()"] -.->|"выход из обоих select"| w1
+    ctx -.-> w2
+    ctx -.-> w3
+```
+
 ```go
 func workerPool(ctx context.Context, jobs <-chan int, workers int) <-chan int {
 	results := make(chan int)
@@ -62,6 +77,17 @@ func workerPool(ctx context.Context, jobs <-chan int, workers int) <-chan int {
 индексируют и складывают результаты в слайс по индексу, а не по времени
 прихода.
 
+```mermaid
+flowchart LR
+    src["items[0..n]"] -->|"fan-out"| g1["горутина 0"]
+    src --> g2["горутина 1"]
+    src --> g3["горутина n"]
+    g1 -->|"fan-in"| out(["out: result{idx, val}"])
+    g2 --> out
+    g3 --> out
+    out --> slice["results[r.idx] = r.val<br/>порядок восстановлен по индексу"]
+```
+
 ```go
 func fanOutIn(items []string) ([]int, error) {
 	type result struct {
@@ -104,6 +130,22 @@ func fanOutIn(items []string) ([]int, error) {
 читающая из входного канала и пишущая в выходной. Ключевое правило: **каждая
 стадия обязана корректно завершиться при отмене**, иначе течёт вся цепочка
 горутин целиком, а не только последняя.
+
+```mermaid
+flowchart LR
+    gen["generator"] --> c1(["chan int"])
+    c1 --> sq["square"]
+    sq --> c2(["chan int"])
+    c2 --> flt["filter"]
+    flt --> c3(["chan int"])
+    c3 --> sink["main: range по каналу"]
+    ctx["ctx.Done()"] -.-> gen
+    ctx -.-> sq
+    ctx -.-> flt
+```
+
+Каждая стадия закрывает **свой** выходной канал через `defer close(out)` —
+закрытие идёт по цепочке слева направо и завершает `range` у следующей стадии.
 
 ```go
 func generator(ctx context.Context, nums ...int) <-chan int {
@@ -243,6 +285,25 @@ func process(item string) { _ = item }
 способ дождаться сигнала ОС (`SIGINT`/`SIGTERM`), перестать принимать новые
 соединения и корректно долить обработку уже идущих запросов в пределах
 таймаута.
+
+```mermaid
+sequenceDiagram
+    participant OS as ОС
+    participant Main as main
+    participant Srv as http.Server
+    participant H as Идущие запросы
+    OS->>Main: SIGTERM
+    Main->>Srv: Shutdown(ctx с таймаутом 5s)
+    Srv-->>OS: слушающий сокет закрыт,<br/>новые соединения не принимаются
+    Srv->>H: ждём завершения текущих обработчиков
+    alt успели за 5 секунд
+        H-->>Srv: все запросы обработаны
+        Srv-->>Main: nil
+    else таймаут истёк
+        Srv-->>Main: context deadline exceeded
+        Main->>H: соединения рвутся принудительно
+    end
+```
 
 ```go
 func main() {

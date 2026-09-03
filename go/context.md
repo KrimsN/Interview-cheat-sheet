@@ -11,6 +11,17 @@
 Контексты образуют **дерево**: у каждого дочернего контекста есть родитель,
 и отмена родителя рекурсивно отменяет всё поддерево.
 
+```mermaid
+flowchart TB
+    bg["context.Background()"] --> req["WithCancel — запрос"]
+    req --> db["WithTimeout 200ms — запрос в БД"]
+    req --> http1["WithTimeout 1s — вызов сервиса A"]
+    http1 --> retry["WithTimeout 300ms — одна попытка"]
+    req -.->|"cancel() родителя<br/>отменяет всё поддерево"| db
+    req -.-> http1
+    http1 -.-> retry
+```
+
 ```go
 func main() {
 	parent, cancelParent := context.WithCancel(context.Background())

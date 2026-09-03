@@ -20,6 +20,23 @@ customers                 orders
                           └────┴─────────────┴────────┘
 ```
 
+```mermaid
+erDiagram
+    CUSTOMERS ||--o{ ORDERS : "делает"
+    CUSTOMERS {
+        int id PK
+        text name
+    }
+    ORDERS {
+        int id PK
+        int customer_id FK "может быть NULL"
+        int amount
+    }
+```
+
+Связь необязательная с обеих сторон: у клиента может не быть заказов, а у
+заказа — клиента. Ровно эти два случая и различают виды соединений.
+
 ---
 
 ## Какие бывают виды JOIN?

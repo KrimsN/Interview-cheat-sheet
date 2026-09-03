@@ -131,6 +131,26 @@ i32>>(i: I)` вместо необходимости всюду таскать �
 (данные + vtable), вызов идёт через таблицу, зато один экземпляр кода и
 разнородная коллекция.
 
+```mermaid
+flowchart TB
+    subgraph stat["Статическая диспетчеризация: impl Trait / генерик"]
+        direction LR
+        src1["fn total(shapes: &[impl Shape])"] -->|"мономорфизация"| c1["total::&lt;Circle&gt;<br/>вызов area инлайнится"]
+        src1 --> c2["total::&lt;Square&gt;<br/>отдельная копия кода"]
+    end
+```
+
+```mermaid
+flowchart TB
+    subgraph dynd["Динамическая: dyn Trait"]
+        direction LR
+        ptr["Box&lt;dyn Shape&gt; — широкий указатель"] --> data["данные"]
+        ptr --> vt["vtable: area, drop, size, align"]
+        vt -->|"косвенный вызов,<br/>инлайна нет"| impl1["Circle::area"]
+        vt --> impl2["Square::area"]
+    end
+```
+
 ```rust
 trait Shape { fn area(&self) -> f64; }
 

@@ -12,6 +12,16 @@
 объекты в структуры), поведенческие (как распределять обязанности и
 взаимодействие).
 
+```mermaid
+flowchart TB
+    gof["23 паттерна GoF"] --> c["Порождающие<br/>как создавать объекты"]
+    gof --> s["Структурные<br/>как собирать в структуры"]
+    gof --> b["Поведенческие<br/>как распределять обязанности"]
+    c --> c1["Factory Method · Abstract Factory<br/>Builder · Singleton · Prototype"]
+    s --> s1["Adapter · Facade · Proxy · Decorator<br/>Composite · Flyweight · Bridge"]
+    b --> b1["Strategy · Template Method · Observer<br/>Command · CoR · State · Iterator<br/>Mediator · Visitor · Memento"]
+```
+
 **Подвох.** Частый провал на собеседовании — пересказ реализации вместо
 проблемы. Паттерн ценен формулировкой «когда применять и чем платить».
 Хороший ответ всегда содержит цену: singleton — глобальное состояние и боль
@@ -33,6 +43,34 @@ Python часто сворачиваются в функцию, переданн
 зная реализации. Abstract Factory — объект, создающий **семейство**
 согласованных продуктов (например, все виджеты одной темы), гарантируя, что
 не смешаются элементы разных семейств.
+
+```mermaid
+flowchart TB
+    subgraph fm["Factory Method — один продукт"]
+        direction LR
+        cl1["Клиент"] -->|"make_exporter('csv')"| f1["Фабрика"]
+        f1 --> p1["CsvExporter"]
+        f1 --> p2["JsonExporter"]
+        cl1 -.->|"видит только"| iface1["Exporter"]
+    end
+```
+
+```mermaid
+flowchart TB
+    subgraph af["Abstract Factory — семейство согласованных продуктов"]
+        direction LR
+        cl2["Клиент"] --> gui["GuiFactory"]
+        gui --> dark["DarkFactory"]
+        gui --> light["LightFactory"]
+        dark --> d1["DarkButton"]
+        dark --> d2["DarkCheckbox"]
+        light --> l1["LightButton"]
+        light --> l2["LightCheckbox"]
+    end
+```
+
+Рост по оси семейств (новая тема) дёшев, по оси продуктов (новый вид виджета) —
+дорог: правится интерфейс фабрики и все её реализации.
 
 ```python
 class Exporter(Protocol):
@@ -126,6 +164,20 @@ class Config:
         return cls._instance
 ```
 
+```mermaid
+sequenceDiagram
+    participant T1 as Поток 1
+    participant T2 as Поток 2
+    participant C as Config._instance
+    T1->>C: _instance is None?
+    C-->>T1: да
+    T2->>C: _instance is None?
+    C-->>T2: да (T1 ещё не записал)
+    T1->>C: _instance = объект A
+    T2->>C: _instance = объект B
+    Note over C: синглтон создан дважды,<br/>ссылка на A потеряна
+```
+
 **Подвох.** «Синглтон нужен для конфига и логгера» — обычно нет: конфиг
 создаётся один раз на старте и **передаётся** туда, где нужен (dependency
 injection), а логгеры и так решают эту задачу через реестр по имени.
@@ -154,6 +206,27 @@ injection), а логгеры и так решают эту задачу чер�
 общими: изменение вложенного списка у копии видно в оригинале. Глубокая копия
 рекурсивно дублирует всё — дороже, но безопасно; должна корректно обрабатывать
 циклические ссылки.
+
+```mermaid
+flowchart TB
+    subgraph shallow["Поверхностная копия"]
+        direction LR
+        o1["Оригинал"] --> inner1["Вложенный список"]
+        c1["Копия"] --> inner1
+    end
+```
+
+```mermaid
+flowchart TB
+    subgraph deep["Глубокая копия"]
+        direction LR
+        o2["Оригинал"] --> inner2["Вложенный список"]
+        c2["Копия"] --> inner3["Копия списка"]
+    end
+```
+
+В поверхностной копии вложенный объект общий: правка через копию видна
+в оригинале.
 
 **Подвох.** Копирование объекта, владеющего внешним ресурсом (открытый файл,
 сокет, соединение с БД), почти всегда ошибка: два владельца одного ресурса

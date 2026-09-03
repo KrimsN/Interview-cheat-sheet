@@ -67,6 +67,25 @@ var _ Notifier = (*EmailSender)(nil) // если EmailSender сломает ко
 упаковка значения в интерфейс нередко вызывает escape to heap (значение
 «убегает» из стека, потому что интерфейс должен пережить текущий кадр).
 
+```mermaid
+flowchart TB
+    subgraph iface["iface — непустой интерфейс"]
+        direction LR
+        i1["tab *itab"] --> tab["itab: конкретный тип + таблица методов"]
+        i2["data unsafe.Pointer"] --> val["значение (часто в куче)"]
+        tab --> m["Sound() — вызов косвенный,<br/>инлайн обычно невозможен"]
+    end
+```
+
+```mermaid
+flowchart TB
+    subgraph nils["Сравнение с nil"]
+        direction LR
+        n1["(тип=nil, данные=nil)"] -->|"i == nil"| t["true"]
+        n2["(тип=*MyErr, данные=nil)"] -->|"i == nil"| f["false — типовая часть заполнена"]
+    end
+```
+
 ```go
 type Animal interface {
     Sound() string

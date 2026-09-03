@@ -11,6 +11,35 @@
 фиксирует скелет алгоритма в базовом классе и оставляет шаги наследникам —
 подмена происходит **наследованием на этапе компиляции**.
 
+```mermaid
+classDiagram
+    direction LR
+    class Context {
+        -strategy Strategy
+        +execute()
+    }
+    class Strategy {
+        <<interface>>
+        +apply()
+    }
+    class DiscountA
+    class DiscountB
+    Context o-- Strategy : композиция, подмена в рантайме
+    Strategy <|.. DiscountA
+    Strategy <|.. DiscountB
+
+    class AbstractJob {
+        +run() скелет алгоритма
+        #step_read()*
+        #step_write()*
+    }
+    class CsvJob {
+        #step_read()
+        #step_write()
+    }
+    AbstractJob <|-- CsvJob : наследование, подмена на этапе компиляции
+```
+
 ```python
 # strategy: политика передаётся снаружи и меняется на лету
 def checkout(cart, pricing):          # pricing — любая функция/объект
@@ -40,6 +69,21 @@ Template Method удобен, когда порядок шагов действ�
 **Коротко.** Observer задаёт зависимость «один ко многим»: при изменении
 состояния субъекта все подписчики уведомляются автоматически. Основа
 событийных моделей, UI-биндингов, брокеров сообщений в миниатюре.
+
+```mermaid
+sequenceDiagram
+    participant App as Клиент
+    participant Subject as Субъект (EventBus)
+    participant O1 as Подписчик 1
+    participant O2 as Подписчик 2
+    O1->>Subject: subscribe("order.paid")
+    O2->>Subject: subscribe("order.paid")
+    App->>Subject: publish("order.paid", payload)
+    Subject->>O1: handler(payload)
+    Subject-->>Subject: исключение в O1 оборвёт рассылку,<br/>если не изолировать вызов
+    Subject->>O2: handler(payload)
+    Note over Subject,O2: порядок уведомления не гарантирован
+```
 
 ```python
 class EventBus:
@@ -82,6 +126,30 @@ Chain of Responsibility передаёт запрос по цепочке обр
 зависящее от состояния, в отдельные объекты-состояния, заменяя большой
 `switch` по полю `status`.
 
+```mermaid
+flowchart LR
+    req["Запрос"] --> h1["with_auth"]
+    h1 -->|"нет токена"| stop["401, цепочка обрывается"]
+    h1 -->|"дальше"| h2["with_rate_limit"]
+    h2 -->|"дальше"| h3["with_logging"]
+    h3 --> target["Обработчик"]
+```
+
+Конечный автомат, который прячется за паттерном State (вместо `if status == ...`):
+
+```mermaid
+stateDiagram-v2
+    [*] --> Created
+    Created --> Paid : pay()
+    Created --> Cancelled : cancel()
+    Paid --> Shipped : ship()
+    Paid --> Refunded : refund()
+    Shipped --> Delivered : deliver()
+    Cancelled --> [*]
+    Refunded --> [*]
+    Delivered --> [*]
+```
+
 ```python
 # chain of responsibility: middleware вокруг обработчика
 def with_auth(next_handler):
@@ -119,6 +187,15 @@ def with_auth(next_handler):
 Ленивый итератор дополнительно снимает требование держать всю коллекцию
 в памяти.
 
+```mermaid
+flowchart LR
+    algo["Алгоритм:<br/>sum, filter, поиск"] -->|"next() до исчерпания"| it["Iterator<br/>(протокол обхода)"]
+    it --> arr["Массив"]
+    it --> tree["Дерево"]
+    it --> file["Файл построчно"]
+    it --> net["Сетевой поток"]
+```
+
 **Подвох.** Изменение коллекции во время итерации — неопределённое поведение
 почти везде: либо исключение, либо пропущенные и продублированные элементы.
 Правильный приём — итерировать по копии или собирать изменения и применять
@@ -136,6 +213,30 @@ def with_auth(next_handler):
 **Коротко.** Mediator убирает прямые связи между множеством компонентов,
 заставляя их общаться только через центральный объект-посредник — компоненты
 знают о медиаторе, но не знают друг о друге.
+
+```mermaid
+flowchart TB
+    subgraph before["Без медиатора: N×N связей"]
+        direction LR
+        b1["Поле имени"] <--> b2["Кнопка"]
+        b1 <--> b3["Чекбокс"]
+        b2 <--> b3
+        b1 <--> b4["Список"]
+        b2 <--> b4
+        b3 <--> b4
+    end
+```
+
+```mermaid
+flowchart TB
+    subgraph after["С медиатором: N связей"]
+        direction LR
+        a1["Поле имени"] <--> m["DialogMediator"]
+        a2["Кнопка"] <--> m
+        a3["Чекбокс"] <--> m
+        a4["Список"] <--> m
+    end
+```
 
 ```python
 class DialogMediator:
@@ -173,6 +274,19 @@ event bus (см. [Observer](#observer)) с более слабой связан�
 изменяя сами классы — через двойную диспетчеризацию: элемент вызывает
 `accept(visitor)`, а тот сам решает, какой метод посетителя вызвать в
 зависимости от типа элемента.
+
+```mermaid
+sequenceDiagram
+    participant C as Клиент
+    participant E as Circle (элемент)
+    participant V as AreaVisitor
+    C->>E: accept(visitor)
+    Note right of E: 1-я диспетчеризация:<br/>выбран accept у Circle
+    E->>V: visit_circle(self)
+    Note right of V: 2-я диспетчеризация:<br/>выбран метод под тип элемента
+    V-->>E: площадь
+    E-->>C: результат
+```
 
 ```python
 class Circle:
@@ -216,6 +330,15 @@ visitor'ы). Если в системе типы элементов стабил
 интерфейс, инфраструктура его реализует; в тестах подставляется in-memory
 реализация. Смысл Unit of Work — атомарность: либо применились все изменения
 операции, либо ни одного.
+
+```mermaid
+flowchart TB
+    svc["Сервис заказов<br/>(домен)"] --> iface["OrderRepository — интерфейс<br/>на языке домена"]
+    pg["PgOrderRepository<br/>(инфраструктура)"] -.->|"реализует"| iface
+    mem["InMemoryOrderRepository<br/>(тесты)"] -.->|"реализует"| iface
+    pg --> uow["UnitOfWork:<br/>одна транзакция на операцию"]
+    uow --> db[("БД")]
+```
 
 **Подвох.** Репозиторий, повторяющий CRUD базы (`save`, `update`, `delete`
 плюс `find_by_*` на каждое поле), — обёртка ради обёртки. Он должен говорить

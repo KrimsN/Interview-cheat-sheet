@@ -54,6 +54,26 @@ array, `len` и `cap`. `append` смотрит на `cap`: если места �
 присваивание `s = append(s, x)` гарантирует, что переменная видит актуальные
 `len`/`cap`/указатель.
 
+```mermaid
+flowchart TB
+    subgraph shared["Два слайса на одном backing array"]
+        direction LR
+        sa["a: ptr, len=3, cap=5"] --> arr["массив: [1] [100] [3] [_] [_]"]
+        sb["b = a[1:3]: ptr, len=2, cap=4"] --> arr
+    end
+```
+
+```mermaid
+flowchart TB
+    subgraph grow["append, когда cap не хватает"]
+        direction LR
+        old["s: ptr, len=5, cap=5"] --> arr2["старый массив"]
+        old -->|"append выделяет новый массив<br/>и копирует данные"| arr3["новый массив, cap больше"]
+        new["s = append(s, x):<br/>новый дескриптор"] --> arr3
+        arr2 -.->|"связь потеряна;<br/>без присваивания переменная<br/>смотрит на старый массив"| stale["устаревший дескриптор"]
+    end
+```
+
 ```go
 a := make([]int, 3, 5) // len=3, cap=5 — есть запас
 a[0], a[1], a[2] = 1, 2, 3
