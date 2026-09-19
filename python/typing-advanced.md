@@ -66,6 +66,87 @@ type IntOrStrSequence[T: (int, str)] = list[T]
 
 ---
 
+## Что такое ковариантность и контрвариантность `TypeVar`?
+
+**Коротко.** Это про то, сохраняется или инвертируется отношение подтипов у
+generic-контейнера при подстановке в него отношения подтипов его параметра.
+Пусть `Dog` — подтип `Animal`. Вопрос: как соотносятся `Container[Dog]` и
+`Container[Animal]`?
+
+- **ковариантный** (`covariant=True`) — направление сохраняется:
+  `Container[Dog]` является подтипом `Container[Animal]`. Годится, когда `T`
+  только **отдаётся наружу** (read-only, «producer») — так ведут себя
+  `Sequence`, `Iterable`, `FrozenSet`.
+- **контрвариантный** (`contravariant=True`) — направление инвертируется:
+  `Container[Animal]` является подтипом `Container[Dog]`. Годится, когда `T`
+  только **принимается на вход** (write-only, «consumer») — так ведут себя
+  обработчики/колбэки, `Callable[[T], ...]` по своим аргументам.
+- **инвариантный** (по умолчанию, без флагов) — `Container[Dog]` и
+  `Container[Animal]` вообще не в отношении подтипов друг с другом, даже если
+  `Dog` — подтип `Animal`. Так ведёт себя `list`, потому что в него можно и
+  писать, и читать.
+
+```python
+from typing import TypeVar, Generic
+from collections.abc import Sequence, Callable
+
+class Animal: ...
+class Dog(Animal): ...
+
+# ковариантность: Sequence только читает элементы
+def process_animals(animals: Sequence[Animal]) -> None: ...
+dogs: Sequence[Dog] = [Dog()]
+process_animals(dogs)  # OK
+
+# контрвариантность: обработчик, умеющий любое животное, годится и для собак
+def make_dog_handler(h: Callable[[Animal], None]) -> Callable[[Dog], None]:
+    return h  # OK
+
+# инвариантность: list и читает, и пишет — подмена типа небезопасна
+def add_animal(animals: list[Animal]) -> None:
+    animals.append(Animal())   # испортило бы list[Dog]
+
+dogs_list: list[Dog] = [Dog()]
+add_animal(dogs_list)  # mypy: ошибка, list[Dog] — не list[Animal]
+```
+
+Свой ковариантный/контрвариантный `TypeVar`:
+
+```python
+T_co = TypeVar("T_co", covariant=True)
+
+class ReadOnlyBox(Generic[T_co]):
+    def __init__(self, item: T_co) -> None:
+        self._item = item
+
+    def get(self) -> T_co:
+        return self._item
+```
+
+**Подвох.** Путают направление у контрвариантности — кажется нелогичным, что
+`Container[Animal]` оказывается «более специальным» типом, чем
+`Container[Dog]`. Мнемоника PECS (Producer Extends, Consumer Super, из Java,
+но применима и здесь): производитель (только отдаёт) — ковариантен,
+потребитель (только принимает) — контрвариантен.
+
+**Глубже.** Правило по ролям: тип, который **только читается** —
+ковариантный; который **только пишется** — контрвариантный; который и
+читается, и пишется — инвариантный (иначе подмена типа сломает инвариант в
+одну из сторон). У функций аргументы контрвариантны, а возвращаемое значение
+ковариантно — поэтому `Callable[[Animal], Dog]` является подтипом
+`Callable[[Dog], Animal]`, а не наоборот.
+
+Начиная с `python 3.12+` (PEP 695) вариантность для `class Container[T]` в
+новом синтаксисе анализаторы типов (mypy, pyright) **выводят автоматически**
+по тому, как `T` используется внутри класса — явно указывать
+`covariant=`/`contravariant=` в большинстве нового кода уже не нужно.
+
+**В общей теории:** вариантность — частный случай принципа подстановки
+Барбары Лисков (LSP) для параметризованных типов — см.
+[Четыре столпа ООП](../fundamentals/oop-basics.md#что-такое-вариантность-обобщённых-типов).
+
+---
+
 ## Зачем нужен `typing.override`?
 
 **Коротко.** `@typing.override` (`python 3.12+`) явно помечает, что метод
